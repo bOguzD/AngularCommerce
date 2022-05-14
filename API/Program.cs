@@ -1,30 +1,22 @@
+using API.Errors;
+using API.Extensions;
 using API.Helpers;
 using API.Middleware;
-using Core.Interfaces;
-using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
 builder.Services.AddDbContext<StoreContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
+builder.Services.AddApplicationServices();
+builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
-
 
 #region CreateDbIfNotExist
 //Database e bakılır eğer yoksa oluşturulur.
@@ -46,17 +38,9 @@ using(var scope = app.Services.CreateScope()){
 host.Run();
 #endregion
 
-
-
-
-
 app.UseMiddleware<ExceptionMiddleware>();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwaggerDocumention();
 
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
