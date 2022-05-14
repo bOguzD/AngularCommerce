@@ -1,4 +1,5 @@
 using API.Helpers;
+using API.Middleware;
 using Core.Interfaces;
 using Infrastructure;
 using Infrastructure.Data;
@@ -49,12 +50,15 @@ host.Run();
 
 
 
+app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
 app.UseHttpsRedirection();
 
